@@ -107,7 +107,7 @@ jobs:
     - name: Prepare release assets
       run: |
         mkdir -p release
-        find ./artifacts -type f -executable -o -name "*.exe" | while read file; do
+        find ./artifacts -type f \( -name "b1cron-*" -o -name "*.exe" \) | while read file; do
           cp "$file" release/
         done
         ls -la release/
