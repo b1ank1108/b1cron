@@ -77,6 +77,8 @@ go run cmd/app/main.go
 - 查看所有定时任务的运行状态
 - 实时显示任务统计：总数、运行中、已暂停、成功率
 
+![Dashboard](img/dashboard.png)
+
 #### 创建/编辑任务
 
 **调度类型支持**：
@@ -84,6 +86,8 @@ go run cmd/app/main.go
   - **简单模式**: 选择执行频率（每N分钟/小时、每天、每周）
   - **高级模式**: 直接输入 Cron 表达式或 @every 格式
 - **一次性执行**: 在指定时间执行一次的任务，执行后自动完成
+
+![Edit Task](img/edit.png)
 
 **脚本类型支持**：
 - **直接命令**: 系统命令或可执行程序
@@ -216,6 +220,18 @@ go run cmd/app/main.go
 ```
 
 Visit http://localhost:8080, login with `admin/admin`.
+
+### 📋 Screenshots
+
+#### Dashboard View
+Real-time task management with execution monitoring and statistics.
+
+![Dashboard](img/dashboard.png)
+
+#### Task Editor
+Create and edit tasks with flexible scheduling options.
+
+![Edit Task](img/edit.png)
 
 ### 🛠️ Script Type Support
 
