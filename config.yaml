@@ -1,0 +1,42 @@
+# B1Cron 配置文件
+# B1Cron Configuration File
+
+# 服务器配置
+server:
+  # 监听端口
+  port: 8080
+  # 监听地址 (0.0.0.0 表示监听所有网卡)
+  host: "0.0.0.0"
+  # 运行模式: debug, release, test
+  mode: "release"
+
+# 数据库配置
+database:
+  # 数据库类型 (目前只支持 sqlite)
+  type: "sqlite"
+  # SQLite 数据库文件路径
+  path: "data/b1cron.db"
+  # 是否启用调试模式 (打印SQL语句)
+  debug: false
+
+# JWT 认证配置
+jwt:
+  # JWT 签名密钥 (生产环境务必修改此值)
+  secret: "b1cron-jwt-secret-key-change-in-production"
+  # Token 过期时间 (小时)
+  expire_hours: 24
+  # 刷新Token过期时间 (小时)
+  refresh_expire_hours: 168
+  # Cookie 名称
+  cookie_name: "b1cron_token"
+  # Cookie 是否只能通过 HTTP 访问
+  http_only: true
+  # Cookie 是否只能通过 HTTPS 传输 (生产环境设为 true)
+  secure: false
+
+# 默认用户配置 (首次启动时创建)
+default_user:
+  # 默认管理员用户名
+  username: "admin"
+  # 默认管理员密码
+  password: "admin"

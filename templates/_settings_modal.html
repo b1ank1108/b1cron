@@ -1,0 +1,30 @@
+<!-- 设置模态框 -->
+<div id="settingsModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300" style="display: none;">
+    <div class="modal bg-white rounded-xl shadow-xl max-w-md w-full mx-4 transform scale-90 transition-transform duration-300">
+        <div class="flex justify-between items-center p-6 border-b border-slate-200">
+            <h3 class="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                <span>⚙️</span> 系统设置
+            </h3>
+            <button type="button" onclick="window.b1cron.closeModal('settingsModal')" 
+                    class="text-slate-400 hover:text-slate-600 text-2xl font-light transition-colors duration-150">
+                ×
+            </button>
+        </div>
+        <div class="p-6 space-y-6">
+            
+            <div class="space-y-3">
+                <h4 class="text-lg font-semibold text-slate-900">账户安全</h4>
+                <button onclick="window.b1cron.showModal('changePasswordModal')" 
+                        class="w-full flex items-center justify-center gap-2 px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-150">
+                    <span>🔐</span> 修改密码
+                </button>
+            </div>
+        </div>
+        <div class="flex justify-end p-6 border-t border-slate-200">
+            <button onclick="window.b1cron.closeModal('settingsModal')" 
+                    class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors duration-150">
+                关闭
+            </button>
+        </div>
+    </div>
+</div>

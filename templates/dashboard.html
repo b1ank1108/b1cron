@@ -1,0 +1,255 @@
+{{template "base.html" .}}
+{{define "content"}}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- 页面标题和操作 -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 animate-fade-in">
+            <div class="mb-4 sm:mb-0">
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-primary-600 to-success-500 bg-clip-text text-transparent mb-2">定时任务管理</h2>
+                <p class="text-slate-600">创建和管理您的定时任务</p>
+            </div>
+            <button onclick="window.b1cron.showModal('createTaskModal')" 
+                    class="inline-flex items-center px-4 py-2 bg-success-500 hover:bg-success-600 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl">
+                <span class="mr-2">✨</span> 创建新任务
+            </button>
+        </div>
+
+        <!-- 任务统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-t-4 border-primary-500 animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-3xl font-bold text-primary-600">{{.totalTasks}}</div>
+                        <div class="text-sm font-medium text-slate-600 uppercase tracking-wide">总任务数</div>
+                    </div>
+                    <div class="text-2xl opacity-30">📋</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-t-4 border-success-500 animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-3xl font-bold text-success-600">{{.enabledTasks}}</div>
+                        <div class="text-sm font-medium text-slate-600 uppercase tracking-wide">运行中</div>
+                    </div>
+                    <div class="text-2xl opacity-30">▶️</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-t-4 border-warning-500 animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-3xl font-bold text-warning-600">{{.disabledTasks}}</div>
+                        <div class="text-sm font-medium text-slate-600 uppercase tracking-wide">已暂停</div>
+                    </div>
+                    <div class="text-2xl opacity-30">⏸️</div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border-t-4 border-slate-500 animate-fade-in">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-3xl font-bold text-slate-600">{{if .executionStats.success_rate}}{{printf "%.1f%%" .executionStats.success_rate}}{{else}}--{{end}}</div>
+                        <div class="text-sm font-medium text-slate-600 uppercase tracking-wide">执行成功率</div>
+                    </div>
+                    <div class="text-2xl opacity-30">📊</div>
+                </div>
+            </div>
+        </div>
+
+    <!-- 任务列表 -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 mb-8">
+        <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+                <span class="mr-2">📋</span>任务列表
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-16">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-36">任务名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-48">命令</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-36">调度规则</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-20">状态</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-32">创建时间</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-48">操作</th>
+                    </tr>
+                </thead>
+                    <tbody class="bg-white divide-y divide-slate-200">
+                        {{range .tasks}}
+                        <tr class="hover:bg-slate-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{.ID}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-slate-900 truncate max-w-xs">{{.Name}}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="bg-slate-100 rounded-md p-2 text-xs font-mono text-slate-700 max-h-10 overflow-y-auto hover:max-h-16 transition-all duration-200" title="点击查看完整命令">{{.Command}}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                {{if eq .ScheduleType "once"}}
+                                    {{if .ExecuteAt}}
+                                        <div class="bg-blue-100 rounded-md p-2 text-xs font-mono text-blue-700" title="一次性执行时间">
+                                            <div class="flex items-center">
+                                                <span class="mr-1">⏰</span>{{.ExecuteAt.Format "2006-01-02 15:04:05"}}
+                                            </div>
+                                        </div>
+                                    {{else}}
+                                        <div class="bg-slate-100 rounded-md p-2 text-xs font-mono text-slate-700" title="一次性任务">一次性任务</div>
+                                    {{end}}
+                                {{else}}
+                                    <div class="bg-slate-100 rounded-md p-2 text-xs font-mono text-slate-700" title="周期性调度规则">
+                                        <div class="flex items-center">
+                                            <span class="mr-1">🔄</span>{{.ScheduleSpec}}
+                                        </div>
+                                    </div>
+                                {{end}}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{if .IsEnabled}}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">启用</span>
+                                {{else}}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">禁用</span>
+                                {{end}}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <button data-task-id="{{.ID}}" 
+                                            data-task-name="{{jsRaw .Name}}" 
+                                            data-task-command="{{jsRaw .Command}}" 
+                                            data-task-schedule="{{jsRaw .ScheduleSpec}}" 
+                                            data-task-schedule-type="{{.ScheduleType}}"
+                                            data-task-script-type="{{.ScriptType}}"
+                                            {{if .ExecuteAt}}data-task-execute-at="{{.ExecuteAt.Format "2006-01-02T15:04:05"}}"{{end}}
+                                            data-task-enabled="{{.IsEnabled}}"
+                                            onclick="editTaskFromElement(this)"
+                                            class="inline-flex items-center px-2 py-1 border border-slate-300 rounded-md text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-150">
+                                        <span class="mr-1">✏️</span> 编辑
+                                    </button>
+                                    <button hx-patch="/api/tasks/{{.ID}}/toggle"
+                                            hx-target="closest tr"
+                                            hx-swap="outerHTML"
+                                            class="inline-flex items-center px-2 py-1 border border-slate-300 rounded-md text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-150">
+                                        {{if .IsEnabled}}<span class="mr-1">⏸️</span> 禁用{{else}}<span class="mr-1">▶️</span> 启用{{end}}
+                                    </button>
+                                    <button hx-delete="/api/tasks/{{.ID}}"
+                                            hx-target="closest tr"
+                                            hx-swap="outerHTML"
+                                            hx-confirm="确定要删除任务「{{.Name}}」吗？"
+                                            class="inline-flex items-center px-2 py-1 border border-red-300 rounded-md text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors duration-150">
+                                        <span class="mr-1">🗑️</span> 删除
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <div class="text-center">
+                                    <div class="text-4xl mb-4 opacity-50">📝</div>
+                                    <p class="text-slate-500">暂无任务，点击上方按钮创建第一个任务</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    <!-- 最近执行记录 -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <h3 class="text-lg font-semibold text-slate-900 flex items-center">
+                <span class="mr-2">📈</span>最近执行记录
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-48">任务名称</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-24">状态</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-36">开始时间</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider w-24">耗时</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">输出</th>
+                    </tr>
+                </thead>
+                    <tbody class="bg-white divide-y divide-slate-200">
+                        {{range .recentExecutions}}
+                        <tr class="hover:bg-slate-50 transition-colors duration-150 cursor-pointer" 
+                            data-execution-id="{{.ID}}" 
+                            data-task-name="{{jsRaw .Task.Name}}" 
+                            data-status="{{jsRaw .Status}}" 
+                            data-start-time="{{jsRaw (.StartedAt.Format "2006-01-02 15:04:05")}}" 
+                            data-end-time="{{if .CompletedAt}}{{jsRaw (.CompletedAt.Format "2006-01-02 15:04:05")}}{{end}}" 
+                            data-duration="{{.Duration}}" 
+                            data-output="{{if .Output}}{{jsRaw .Output}}{{end}}" 
+                            data-error="{{if .ErrorMsg}}{{jsRaw .ErrorMsg}}{{end}}"
+                            onclick="showExecutionDetailFromElement(this)">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-slate-900 truncate max-w-xs">{{.Task.Name}}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{if eq .Status "success"}}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">成功</span>
+                                {{else if eq .Status "failed"}}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">失败</span>
+                                {{else if eq .Status "running"}}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800">运行中</span>
+                                {{else}}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">{{.Status}}</span>
+                                {{end}}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">{{.StartedAt.Format "2006-01-02 15:04:05"}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">
+                                {{if .Duration}}
+                                    {{if lt .Duration 1000}}
+                                        {{.Duration}}ms
+                                    {{else}}
+                                        {{printf "%.2fs" (div (toFloat64 .Duration) 1000.0)}}
+                                    {{end}}
+                                {{else}}
+                                    --
+                                {{end}}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{if .Output}}
+                                    <div class="bg-slate-100 rounded-md p-2 text-xs font-mono text-slate-700 max-h-10 overflow-y-auto hover:max-h-16 transition-all duration-200" title="{{.Output}}">{{.Output}}</div>
+                                {{else if .ErrorMsg}}
+                                    <div class="bg-red-100 rounded-md p-2 text-xs font-mono text-red-700 max-h-10 overflow-y-auto hover:max-h-16 transition-all duration-200" title="{{.ErrorMsg}}">{{.ErrorMsg}}</div>
+                                {{else}}
+                                    <span class="text-slate-400">--</span>
+                                {{end}}
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div class="text-center">
+                                    <div class="text-4xl mb-4 opacity-50">📊</div>
+                                    <p class="text-slate-500">暂无执行记录</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- 引入模态框模板 -->
+{{template "_create_task_modal.html" .}}
+{{template "_edit_task_modal.html" .}}
+{{template "_execution_detail_modal.html" .}}
+{{end}}
+
+{{define "head"}}
+<!-- Dashboard 页面已使用 Tailwind CSS -->
+{{end}}
+
+{{define "scripts"}}
+<script src="/static/js/dashboard-simplified.js"></script>
+{{end}}

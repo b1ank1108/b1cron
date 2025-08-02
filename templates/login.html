@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B1Cron 登录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        success: {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                            600: '#059669'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/static/css/tailwind-custom.css">
+</head>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden animate-fade-in">
+            <!-- 登录头部 -->
+            <div class="px-8 py-6 text-center bg-slate-50 border-b border-slate-200">
+                <h1 class="text-3xl font-bold text-primary-600 mb-2 flex items-center justify-center gap-2">
+                    <span>🚀</span>
+                    B1Cron
+                </h1>
+                <p class="text-sm text-slate-600">企业级定时任务管理系统</p>
+            </div>
+            
+            <!-- 登录表单 -->
+            <div class="p-8">
+                <form id="loginForm" class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-slate-700" for="username">用户名</label>
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               required 
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" 
+                               placeholder="请输入用户名"
+                               autocomplete="username">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-slate-700" for="password">密码</label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               required 
+                               class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" 
+                               placeholder="请输入密码"
+                               autocomplete="current-password">
+                    </div>
+                    
+                    <button type="submit" class="w-full relative bg-primary-600 hover:bg-primary-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                        <span class="btn-text flex items-center justify-center">
+                            登录
+                        </span>
+                        <span class="btn-loading hidden items-center justify-center">
+                            <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            登录中...
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/toast-libraries.js"></script>
+    <script>
+        // 初始化SimpleToast for login page
+        window.toast = new SimpleToast();
+        // 创建简化的 b1cron 对象供 login.js 使用
+        window.b1cron = {
+            showToast: (message, type = 'info', duration = 4000) => {
+                return window.toast.show(message, type, duration);
+            }
+        };
+    </script>
+    <script src="/static/js/login.js"></script>
+</body>
+</html>

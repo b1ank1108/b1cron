@@ -1,0 +1,48 @@
+<tr class="hover:bg-slate-50 transition-colors duration-150 animate-fade-in">
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">{{.ID}}</td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        <div class="text-sm font-medium text-slate-900 truncate max-w-xs">{{.Name}}</div>
+    </td>
+    <td class="px-6 py-4">
+        <div class="bg-slate-100 rounded-md p-2 text-xs max-h-10 overflow-y-auto hover:max-h-16 transition-all duration-200" title="点击查看完整命令">
+            <code class="code-inline font-mono text-slate-700">{{.Command}}</code>
+        </div>
+    </td>
+    <td class="px-6 py-4">
+        <div class="bg-slate-100 rounded-md p-2 text-xs font-mono text-slate-700" title="调度规则">{{.ScheduleSpec}}</div>
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        {{if .IsEnabled}}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">启用</span>
+        {{else}}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">禁用</span>
+        {{end}}
+    </td>
+    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+    <td class="px-6 py-4 whitespace-nowrap">
+        <div class="flex flex-col sm:flex-row gap-2">
+            <button data-task-id="{{.ID}}" 
+                    data-task-name="{{jsRaw .Name}}" 
+                    data-task-command="{{jsRaw .Command}}" 
+                    data-task-schedule="{{jsRaw .ScheduleSpec}}" 
+                    data-task-enabled="{{.IsEnabled}}"
+                    onclick="editTaskFromElement(this)"
+                    class="inline-flex items-center px-2 py-1 border border-slate-300 rounded-md text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-150">
+                <span class="mr-1">✏️</span> 编辑
+            </button>
+            <button hx-patch="/api/tasks/{{.ID}}/toggle"
+                    hx-target="closest tr"
+                    hx-swap="outerHTML"
+                    class="inline-flex items-center px-2 py-1 border border-slate-300 rounded-md text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-150">
+                {{if .IsEnabled}}<span class="mr-1">⏸️</span> 禁用{{else}}<span class="mr-1">▶️</span> 启用{{end}}
+            </button>
+            <button hx-delete="/api/tasks/{{.ID}}"
+                    hx-target="closest tr"
+                    hx-swap="outerHTML"
+                    hx-confirm="确定要删除任务「{{.Name}}」吗？"
+                    class="inline-flex items-center px-2 py-1 border border-red-300 rounded-md text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors duration-150">
+                <span class="mr-1">🗑️</span> 删除
+            </button>
+        </div>
+    </td>
+</tr>

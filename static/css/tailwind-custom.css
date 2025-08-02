@@ -1,0 +1,285 @@
+/* Tailwind CSS 自定义样式 - 补充 Tailwind 未覆盖的功能 */
+
+/* 动画定义 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* 动画类 */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+
+/* 自定义滚动条 */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+
+/* Toast 通知样式 - 保持原有功能 */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toast {
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 300px;
+  transform: translateX(100%);
+  transition: transform 0.25s ease-out;
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast-success {
+  background: #10b981;
+  color: white;
+}
+
+.toast-error {
+  background: #ef4444;
+  color: white;
+}
+
+.toast-warning {
+  background: #f59e0b;
+  color: white;
+}
+
+.toast-info {
+  background: #3b82f6;
+  color: white;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: currentColor;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s ease-out;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* 模态框增强 - 保持原有功能 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+  pointer-events: none;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-overlay.show .modal {
+  transform: scale(1);
+}
+
+/* 确保模态框显示时的背景不透明 */
+.modal-overlay[style*="display: block"], 
+.modal-overlay:not([style*="display: none"]) {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal-overlay[style*="display: block"] .modal,
+.modal-overlay:not([style*="display: none"]) .modal {
+  transform: scale(1);
+}
+
+/* 表单验证状态 */
+.is-invalid {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1) !important;
+}
+
+.is-valid {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgb(16 185 129 / 0.1) !important;
+}
+
+.field-feedback {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* 代码输入框样式 */
+.code-input {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  resize: vertical;
+  min-height: 80px;
+}
+
+
+/* 浅色模式代码块样式优化 */
+pre[class*="language-"] {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  padding: 1em;
+  margin: 0.5em 0;
+  overflow: auto;
+}
+
+/* 内联代码块 */
+.code-inline {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+  font-size: 0.875em;
+  background: #f1f5f9;
+  color: #1e293b;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  border: 1px solid #cbd5e1;
+}
+
+
+/* CodeMirror 编辑器样式 */
+.CodeMirror {
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  height: auto;
+  min-height: 150px;
+}
+
+.CodeMirror-focused {
+  border-color: #3b82f6;
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+}
+
+.CodeMirror-gutters {
+  display: none;
+}
+
+.CodeMirror-lines {
+  padding: 12px;
+}
+
+.CodeMirror-scroll {
+  overflow: auto;
+}
+
+.CodeMirror pre.CodeMirror-line,
+.CodeMirror pre.CodeMirror-line-like {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.CodeMirror-selected {
+  background: #e0e7ff;
+}
+
+
+/* CodeMirror 滚动条 */
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+  background-color: transparent;
+}
+
+.CodeMirror-vscrollbar,
+.CodeMirror-hscrollbar {
+  outline: none;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar,
+.CodeMirror-hscrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-track,
+.CodeMirror-hscrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover,
+.CodeMirror-hscrollbar::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
+}
+
+
+/* 减少动画 - 可访问性考虑 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .toast-container,
+  .modal-overlay {
+    display: none !important;
+  }
+}

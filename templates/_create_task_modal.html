@@ -1,0 +1,134 @@
+<!-- 创建任务模态框 -->
+<div id="createTaskModal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 pointer-events-none transition-opacity duration-300" style="display: none;">
+    <div class="modal bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform scale-90 transition-transform duration-300">
+        <div class="flex justify-between items-center p-6 border-b border-slate-200">
+            <h3 class="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                <span>✨</span> 创建新任务
+            </h3>
+            <button type="button" onclick="window.b1cron.closeModal('createTaskModal')" 
+                    class="text-slate-400 hover:text-slate-600 text-2xl font-light transition-colors duration-150">
+                ×
+            </button>
+        </div>
+        <div class="p-6">
+            <form id="createTaskForm" class="validate space-y-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700">任务名称 *</label>
+                    <input type="text" name="name" required 
+                           class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" 
+                           placeholder="输入任务名称">
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700">脚本类型 *</label>
+                    <select name="script_type" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" id="script-type-select">
+                        <option value="command">直接命令</option>
+                        <option value="shell">Shell脚本</option>
+                        <option value="python">Python脚本</option>
+                    </select>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700" id="command-label">执行命令 *</label>
+                    <div class="code-editor-container">
+                        <textarea name="command" required 
+                                  class="hidden" 
+                                  id="command-input"
+                                  placeholder="例如: echo 'Hello World' 或 /path/to/script.sh"
+                                  rows="6"></textarea>
+                    </div>
+                    <div class="text-xs text-slate-500" id="command-help">
+                        支持任何 shell 命令，如脚本路径、系统命令等
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-slate-700">调度类型 *</label>
+                    <div class="flex border-b border-slate-200">
+                        <button type="button" class="schedule-type-btn px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-primary-50" data-type="cron">周期性执行</button>
+                        <button type="button" class="schedule-type-btn px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors duration-150" data-type="once">一次性执行</button>
+                    </div>
+                    
+                    <!-- 周期性执行设置 -->
+                    <div id="cron-schedule" class="schedule-type-content mt-4">
+                        <div class="flex border-b border-slate-200">
+                            <button type="button" class="tab-btn px-4 py-2 text-sm font-medium text-primary-600 border-b-2 border-primary-600 bg-primary-50" data-tab="simple">简单设置</button>
+                            <button type="button" class="tab-btn px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors duration-150" data-tab="advanced">高级</button>
+                        </div>
+                        
+                        <div id="simple-tab" class="tab-content pt-4 space-y-4">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-700">执行频率</label>
+                                <select class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" id="frequency-select">
+                                    <option value="minutes">每N分钟</option>
+                                    <option value="hours">每N小时</option>
+                                    <option value="daily">每天</option>
+                                    <option value="weekly">每周</option>
+                                </select>
+                            </div>
+                            
+                            <div id="interval-input" class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-700">间隔时间</label>
+                                <div class="flex gap-2">
+                                    <input type="number" id="interval-value" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" min="1" value="5">
+                                    <span class="px-3 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg">分钟</span>
+                                </div>
+                            </div>
+                            
+                            <div id="time-input" class="space-y-2 hidden">
+                                <label class="block text-sm font-medium text-slate-700">执行时间</label>
+                                <input type="time" id="execution-time" class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" value="09:00">
+                            </div>
+                        </div>
+                        
+                        <div id="advanced-tab" class="tab-content pt-4 space-y-2 hidden">
+                            <label class="block text-sm font-medium text-slate-700">Cron 表达式</label>
+                            <input type="text" name="schedule_spec_manual" 
+                                   class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200" 
+                                   placeholder="例如: 30 9 * * 1 或 @every 5m">
+                            <div class="text-xs text-slate-500">
+                                标准格式: 分 时 日 月 周 (5个字段)
+                            </div>
+                            <div id="cron-preview" class="text-sm text-slate-600"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 一次性执行设置 -->
+                    <div id="once-schedule" class="schedule-type-content mt-4 hidden">
+                        <div class="space-y-4">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium text-slate-700">执行时间 *</label>
+                                <input type="datetime-local" name="execute_at" 
+                                       class="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors duration-200">
+                                <div class="text-xs text-slate-500">
+                                    选择任务执行的具体日期和时间
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 隐藏字段，用于存储最终的调度规则和类型 -->
+                    <input type="hidden" name="schedule_spec" id="final-schedule">
+                    <input type="hidden" name="schedule_type" id="final-schedule-type" value="cron">
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    <input type="checkbox" name="is_enabled" value="true" checked 
+                           class="w-4 h-4 text-primary-600 bg-white border-slate-300 rounded focus:ring-primary-500 focus:ring-2">
+                    <label class="text-sm font-medium text-slate-700">立即启用任务</label>
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-6 border-t border-slate-200">
+                    <button type="button" onclick="window.b1cron.closeModal('createTaskModal')" 
+                            class="px-4 py-2 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-150">
+                        取消
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors duration-150">
+                        创建任务
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

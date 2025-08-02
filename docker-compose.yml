@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  b1cron:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./data:/app/data
+      - ./config.yaml:/app/config.yaml:ro
+    restart: unless-stopped

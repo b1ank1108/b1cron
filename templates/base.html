@@ -1,0 +1,114 @@
+{{define "base.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.title}} - B1Cron</title>
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        },
+                        success: {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                            600: '#059669'
+                        },
+                        warning: {
+                            50: '#fffbeb',
+                            500: '#f59e0b',
+                            600: '#d97706'
+                        },
+                        error: {
+                            50: '#fef2f2',
+                            500: '#ef4444',
+                            600: '#dc2626'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/static/css/tailwind-custom.css">
+    <!-- Prism.js 代码高亮 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <!-- CodeMirror 代码编辑器 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/theme/eclipse.min.css">
+    {{block "head" .}}{{end}}
+</head>
+<body>
+    {{block "navbar" .}}
+    <!-- 导航栏 -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">🚀</span>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">B1Cron</h1>
+                        <p class="text-xs text-slate-500">定时任务管理</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button onclick="window.b1cron.showModal('settingsModal')" 
+                            class="inline-flex items-center px-3 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-150">
+                        <span class="mr-2">⚙️</span> 设置
+                    </button>
+                    <button onclick="location.href='/logout'" 
+                            class="inline-flex items-center px-3 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition-colors duration-150">
+                        <span class="mr-2">🚪</span> 退出
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    {{end}}
+
+    <main>
+        {{block "content" .}}{{end}}
+    </main>
+
+    <!-- 引入模态框模板 -->
+    {{template "_settings_modal.html" .}}
+    {{template "_change_password_modal.html" .}}
+
+    <script src="/static/js/modern.js"></script>
+    <!-- B1Components 组件库 -->
+    <script src="/static/js/tab-manager.js"></script>
+    <script src="/static/js/schedule-type-manager.js"></script>
+    <script src="/static/js/schedule-manager.js"></script>
+    <script src="/static/js/code-editor.js"></script>
+    <script src="/static/js/task-form.js"></script>
+    <script src="/static/js/components.js"></script>
+    <script src="/static/js/toast-libraries.js"></script>
+    <!-- Prism.js 代码高亮 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <!-- CodeMirror 代码编辑器 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/shell/shell.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/mode/javascript/javascript.min.js"></script>
+    <script>
+        // 初始化SimpleToast
+        window.toast = new SimpleToast();
+        // 向后兼容的API
+        window.showToast = (message, type = 'info', duration = 4000) => {
+            return window.toast.show(message, type, duration);
+        };
+    </script>
+    {{block "scripts" .}}{{end}}
+</body>
+</html>
+{{end}}
