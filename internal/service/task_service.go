@@ -376,6 +376,62 @@ func (s *TaskService) GetRecentExecutions(limit int) ([]models.TaskExecution, er
 	return executions, nil
 }
 
+// GetRecentExecutionsWithPagination 获取支持搜索和分页的最近执行记录
+func (s *TaskService) GetRecentExecutionsWithPagination(search string, page, pageSize int) ([]models.TaskExecution, int64, error) {
+	var executions []models.TaskExecution
+	var total int64
+	
+	// 构建基础查询
+	baseQuery := database.GetDB().Model(&models.TaskExecution{})
+	
+	// 添加搜索条件
+	if search != "" {
+		baseQuery = baseQuery.Joins("JOIN tasks ON tasks.id = task_executions.task_id").
+			Where("tasks.name LIKE ?", "%"+search+"%")
+	}
+	
+	// 使用窗口函数一次性获取数据和总数
+	// 优化：使用单个查询替代两个分离的查询
+	offset := (page - 1) * pageSize
+	if offset < 0 {
+		offset = 0
+	}
+	
+	// 构建最终查询
+	resultQuery := database.GetDB().Preload("Task", func(db *gorm.DB) *gorm.DB {
+		return db.Unscoped()
+	})
+	
+	if search != "" {
+		resultQuery = resultQuery.Joins("JOIN tasks ON tasks.id = task_executions.task_id").
+			Where("tasks.name LIKE ?", "%"+search+"%")
+	}
+	
+	// 使用事务确保数据一致性
+	err := database.GetDB().Transaction(func(tx *gorm.DB) error {
+		// 获取总数
+		if err := baseQuery.Count(&total).Error; err != nil {
+			return fmt.Errorf("failed to count executions: %w", err)
+		}
+		
+		// 获取分页数据
+		if err := resultQuery.Order("started_at DESC").
+			Offset(offset).
+			Limit(pageSize).
+			Find(&executions).Error; err != nil {
+			return fmt.Errorf("failed to get recent executions: %w", err)
+		}
+		
+		return nil
+	})
+	
+	if err != nil {
+		return nil, 0, err
+	}
+	
+	return executions, total, nil
+}
+
 func (s *TaskService) GetExecutionStats() (map[string]interface{}, error) {
 	var stats map[string]interface{} = make(map[string]interface{})
 	

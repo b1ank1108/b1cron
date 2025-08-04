@@ -35,10 +35,10 @@ type Task struct {
 
 type TaskExecution struct {
 	ID          uint      `gorm:"primaryKey" json:"id"`
-	TaskID      uint      `gorm:"not null;index" json:"task_id"`
+	TaskID      uint      `gorm:"not null;index:idx_task_started" json:"task_id"`
 	Task        Task      `gorm:"foreignKey:TaskID" json:"task,omitempty"`
-	Status      string    `gorm:"not null" json:"status"` // success, failed, running
-	StartedAt   time.Time `gorm:"not null" json:"started_at"`
+	Status      string    `gorm:"not null;index" json:"status"` // success, failed, running
+	StartedAt   time.Time `gorm:"not null;index:idx_task_started" json:"started_at"`
 	CompletedAt *time.Time `json:"completed_at"`
 	Duration    int64     `json:"duration"` // milliseconds
 	Output      string    `gorm:"type:text" json:"output"`

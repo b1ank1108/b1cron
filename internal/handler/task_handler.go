@@ -83,7 +83,7 @@ func (h *TaskHandler) ShowDashboard(c *gin.Context) {
 	}
 
 	// 获取最近执行记录
-	recentExecutions, err := h.taskService.GetRecentExecutions(10)
+	recentExecutions, err := h.taskService.GetRecentExecutions(20)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -355,6 +355,51 @@ func (h *TaskHandler) GetTaskExecutions(c *gin.Context) {
 }
 
 func (h *TaskHandler) GetRecentExecutions(c *gin.Context) {
+	// 检查是否使用新的分页API
+	search := c.Query("search")
+	pageStr := c.Query("page")
+	pageSizeStr := c.Query("page_size")
+	
+	if search != "" || pageStr != "" || pageSizeStr != "" {
+		// 使用新的分页API
+		page := 1
+		if pageStr != "" {
+			if parsedPage, err := strconv.Atoi(pageStr); err == nil && parsedPage > 0 {
+				page = parsedPage
+			}
+		}
+		
+		pageSize := 20
+		if pageSizeStr != "" {
+			if parsedPageSize, err := strconv.Atoi(pageSizeStr); err == nil && parsedPageSize > 0 && parsedPageSize <= 100 {
+				pageSize = parsedPageSize
+			}
+		}
+		
+		executions, total, err := h.taskService.GetRecentExecutionsWithPagination(search, page, pageSize)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		
+		// 计算分页信息
+		totalPages := int((total + int64(pageSize) - 1) / int64(pageSize))
+		
+		c.JSON(http.StatusOK, gin.H{
+			"executions": executions,
+			"pagination": gin.H{
+				"current_page": page,
+				"page_size":    pageSize,
+				"total_items":  total,
+				"total_pages":  totalPages,
+				"has_next":     page < totalPages,
+				"has_prev":     page > 1,
+			},
+		})
+		return
+	}
+	
+	// 保持向后兼容的旧API
 	limit := 20 // 默认限制20条记录
 	if limitParam := c.Query("limit"); limitParam != "" {
 		if parsedLimit, err := strconv.Atoi(limitParam); err == nil && parsedLimit > 0 {

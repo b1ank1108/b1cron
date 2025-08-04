@@ -74,7 +74,7 @@ func main() {
 	}
 
 	// 设置路由
-	router := setupRouter(jwtMiddleware, taskHandler)
+	router := setupRouter(jwtMiddleware, taskHandler, cfg)
 
 	// 创建HTTP服务器
 	srv := &http.Server{
@@ -113,7 +113,7 @@ func main() {
 	log.Println("Server exited")
 }
 
-func setupRouter(jwtMiddleware *jwt.GinJWTMiddleware, taskHandler *handler.TaskHandler) *gin.Engine {
+func setupRouter(jwtMiddleware *jwt.GinJWTMiddleware, taskHandler *handler.TaskHandler, cfg *config.Config) *gin.Engine {
 	router := gin.Default()
 
 	// 添加模板函数
@@ -172,13 +172,23 @@ func setupRouter(jwtMiddleware *jwt.GinJWTMiddleware, taskHandler *handler.TaskH
 	})
 
 	router.POST("/login", jwtMiddleware.LoginHandler)
-	router.POST("/logout", jwtMiddleware.LogoutHandler)
 
 	// Protected routes (authentication required)
 	auth := router.Group("/")
 	auth.Use(jwtMiddleware.MiddlewareFunc())
 	{
 		auth.GET("/dashboard", taskHandler.ShowDashboard)
+		// 添加其他需要保护的页面路由
+		auth.GET("/settings", taskHandler.ShowDashboard) // 临时使用dashboard处理器
+		auth.GET("/profile", taskHandler.ShowDashboard)   // 临时使用dashboard处理器
+		
+		// 退出登录
+		auth.POST("/logout", jwtMiddleware.LogoutHandler)
+		auth.GET("/logout", func(c *gin.Context) {
+			// 清除cookie
+			c.SetCookie(cfg.JWT.CookieName, "", -1, "/", "", cfg.JWT.Secure, cfg.JWT.HTTPOnly)
+			c.Redirect(http.StatusFound, "/login")
+		})
 	}
 
 	api := router.Group("/api")

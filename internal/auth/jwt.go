@@ -5,6 +5,7 @@ import (
 	"b1cron/internal/database"
 	"b1cron/internal/models"
 	"net/http"
+	"strings"
 	"time"
 
 	jwt "github.com/appleboy/gin-jwt/v2"
@@ -69,10 +70,16 @@ func NewJWTMiddleware(cfg *config.Config) (*jwt.GinJWTMiddleware, error) {
 		},
 		
 		Unauthorized: func(c *gin.Context, code int, message string) {
-			c.JSON(code, gin.H{
-				"code":    code,
-				"message": message,
-			})
+			// 如果是API请求，返回JSON错误
+			if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+				c.JSON(code, gin.H{
+					"code":    code,
+					"message": message,
+				})
+			} else {
+				// 如果是页面请求，重定向到登录页面
+				c.Redirect(http.StatusFound, "/login")
+			}
 		},
 		
 		TokenLookup: "cookie:" + cfg.JWT.CookieName,
@@ -107,10 +114,16 @@ func NewJWTMiddleware(cfg *config.Config) (*jwt.GinJWTMiddleware, error) {
 		},
 		
 		LogoutResponse: func(c *gin.Context, code int) {
-			c.JSON(http.StatusOK, gin.H{
-				"code":    http.StatusOK,
-				"message": "Successfully logged out",
-			})
+			// 检查是否是API请求
+			if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+				c.JSON(http.StatusOK, gin.H{
+					"code":    http.StatusOK,
+					"message": "Successfully logged out",
+				})
+			} else {
+				// 如果是页面请求，重定向到登录页面
+				c.Redirect(http.StatusFound, "/login")
+			}
 		},
 	})
 }

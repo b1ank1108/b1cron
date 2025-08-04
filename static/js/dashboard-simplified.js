@@ -95,15 +95,30 @@ function bindExecutionDetails() {
 
 // 显示执行详情模态框 - 从元素读取数据
 function showExecutionDetailFromElement(element) {
-    const taskName = element.dataset.taskName || '';
-    const status = element.dataset.status || '';
-    const startTime = element.dataset.startTime || '';
-    const endTime = element.dataset.endTime || '';
-    const duration = parseInt(element.dataset.duration) || 0;
-    const output = element.dataset.output || '';
-    const errorMsg = element.dataset.error || '';
-    
-    showExecutionDetail(taskName, status, startTime, endTime, duration, output, errorMsg);
+    try {
+        const executionData = JSON.parse(element.dataset.execution || '{}');
+        const taskName = executionData.taskName || '';
+        const status = executionData.status || '';
+        const startTime = executionData.startTime || '';
+        const endTime = executionData.endTime || '';
+        const duration = parseInt(executionData.duration) || 0;
+        const output = executionData.output || '';
+        const errorMsg = executionData.error || '';
+        
+        showExecutionDetail(taskName, status, startTime, endTime, duration, output, errorMsg);
+    } catch (error) {
+        console.error('Error parsing execution data:', error);
+        // 回退到旧的数据格式（如果存在）
+        const taskName = element.dataset.taskName || '';
+        const status = element.dataset.status || '';
+        const startTime = element.dataset.startTime || '';
+        const endTime = element.dataset.endTime || '';
+        const duration = parseInt(element.dataset.duration) || 0;
+        const output = element.dataset.output || '';
+        const errorMsg = element.dataset.error || '';
+        
+        showExecutionDetail(taskName, status, startTime, endTime, duration, output, errorMsg);
+    }
 }
 
 // 显示执行详情模态框

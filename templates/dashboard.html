@@ -159,9 +159,31 @@
     <!-- 最近执行记录 -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200">
         <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
-            <h3 class="text-lg font-semibold text-slate-900 flex items-center">
-                <span class="mr-2">📈</span>最近执行记录
-            </h3>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                <h3 class="text-lg font-semibold text-slate-900 flex items-center mb-4 sm:mb-0">
+                    <span class="mr-2">📈</span>最近执行记录
+                </h3>
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <div class="relative">
+                        <input type="text" 
+                               id="executionSearchInput" 
+                               placeholder="搜索任务名称..." 
+                               class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent w-full sm:w-64"
+                               onkeyup="searchExecutions()">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-slate-400">🔍</span>
+                        </div>
+                    </div>
+                    <select id="executionPageSize" 
+                            class="px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            onchange="loadExecutions()">
+                        <option value="10">10条/页</option>
+                        <option value="20" selected>20条/页</option>
+                        <option value="50">50条/页</option>
+                        <option value="100">100条/页</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full">
@@ -174,66 +196,35 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">输出</th>
                     </tr>
                 </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
-                        {{range .recentExecutions}}
-                        <tr class="hover:bg-slate-50 transition-colors duration-150 cursor-pointer" 
-                            data-execution-id="{{.ID}}" 
-                            data-task-name="{{jsRaw .Task.Name}}" 
-                            data-status="{{jsRaw .Status}}" 
-                            data-start-time="{{jsRaw (.StartedAt.Format "2006-01-02 15:04:05")}}" 
-                            data-end-time="{{if .CompletedAt}}{{jsRaw (.CompletedAt.Format "2006-01-02 15:04:05")}}{{end}}" 
-                            data-duration="{{.Duration}}" 
-                            data-output="{{if .Output}}{{jsRaw .Output}}{{end}}" 
-                            data-error="{{if .ErrorMsg}}{{jsRaw .ErrorMsg}}{{end}}"
-                            onclick="showExecutionDetailFromElement(this)">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-slate-900 truncate max-w-xs">{{.Task.Name}}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                {{if eq .Status "success"}}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">成功</span>
-                                {{else if eq .Status "failed"}}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">失败</span>
-                                {{else if eq .Status "running"}}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning-100 text-warning-800">运行中</span>
-                                {{else}}
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">{{.Status}}</span>
-                                {{end}}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">{{.StartedAt.Format "2006-01-02 15:04:05"}}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">
-                                {{if .Duration}}
-                                    {{if lt .Duration 1000}}
-                                        {{.Duration}}ms
-                                    {{else}}
-                                        {{printf "%.2fs" (div (toFloat64 .Duration) 1000.0)}}
-                                    {{end}}
-                                {{else}}
-                                    --
-                                {{end}}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{if .Output}}
-                                    <div class="bg-slate-100 rounded-md p-2 text-xs font-mono text-slate-700 max-h-10 overflow-y-auto hover:max-h-16 transition-all duration-200" title="{{.Output}}">{{.Output}}</div>
-                                {{else if .ErrorMsg}}
-                                    <div class="bg-red-100 rounded-md p-2 text-xs font-mono text-red-700 max-h-10 overflow-y-auto hover:max-h-16 transition-all duration-200" title="{{.ErrorMsg}}">{{.ErrorMsg}}</div>
-                                {{else}}
-                                    <span class="text-slate-400">--</span>
-                                {{end}}
-                            </td>
-                        </tr>
-                        {{else}}
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center">
-                                <div class="text-center">
-                                    <div class="text-4xl mb-4 opacity-50">📊</div>
-                                    <p class="text-slate-500">暂无执行记录</p>
-                                </div>
-                            </td>
-                        </tr>
-                        {{end}}
-                    </tbody>
-                </table>
+                <tbody id="executionsTableBody" class="bg-white divide-y divide-slate-200">
+                    <!-- 执行记录将通过JavaScript动态加载 -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 分页控件 -->
+        <div class="px-6 py-4 border-t border-slate-200 bg-slate-50">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <div class="text-sm text-slate-600 mb-4 sm:mb-0">
+                    <span id="executionPaginationInfo">显示第 1-20 条，共 0 条记录</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="prevPageBtn" 
+                            onclick="previousPage()" 
+                            class="px-3 py-1 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
+                            disabled>
+                        上一页
+                    </button>
+                    <div id="pageNumbers" class="flex space-x-1">
+                        <!-- 页码按钮将通过JavaScript动态生成 -->
+                    </div>
+                    <button id="nextPageBtn" 
+                            onclick="nextPage()" 
+                            class="px-3 py-1 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
+                            disabled>
+                        下一页
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -252,4 +243,5 @@
 
 {{define "scripts"}}
 <script src="/static/js/dashboard-simplified.js"></script>
+<script src="/static/js/execution-records.js"></script>
 {{end}}
